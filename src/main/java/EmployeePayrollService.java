@@ -44,6 +44,10 @@ public class EmployeePayrollService {
                 .orElse(null);
         return dbData.salary == (this.getEmployeePayrollData(name).salary); //
     }
+    // Add this method to bridge the Test and the DB Service
+    public void addEmployeeToPayroll(String name, double salary, LocalDate start, String gender) {
+        employeePayrollDBService.addEmployeeToPayroll(name, salary, start, gender);
+    }
     public Map<String, Double> readAverageSalaryByGender() {
         return employeePayrollDBService.getAverageSalaryByGender();
     }

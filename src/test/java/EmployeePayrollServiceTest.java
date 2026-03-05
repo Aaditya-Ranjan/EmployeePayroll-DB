@@ -33,4 +33,20 @@ public class EmployeePayrollServiceTest {
         Assertions.assertTrue(avgSalaryByGender.containsKey("M")); //
         Assertions.assertEquals(1500000.0, avgSalaryByGender.get("M"), 0.0); //
     }
+    @Test
+    public void givenNewEmployee_WhenAdded_ShouldSyncWithDB() {
+        EmployeePayrollService service = new EmployeePayrollService();
+
+        // 1. Get initial count of employees
+        service.readEmployeePayrollData();
+        int initialCount = service.readEmployeePayrollData().size(); // Should be 3
+
+        // 2. Add a new employee using the transaction method
+        LocalDate start = LocalDate.now();
+        service.addEmployeeToPayroll("Mark", 5000000.0, start, "M");
+
+        // 3. Verify the count has increased
+        int finalCount = service.readEmployeePayrollData().size();
+        Assertions.assertEquals(initialCount + 1, finalCount); //
+    }
 }

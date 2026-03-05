@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDate;
 import java.util.*;
+import java.sql.Date;
 
 public class EmployeePayrollDBService {
     public List<EmployeePayrollData> readData() {
@@ -54,6 +55,7 @@ public class EmployeePayrollDBService {
         }
         return 0;
     }
+    
     public List<EmployeePayrollData> getEmployeePayrollDataByDateRange(LocalDate startDate, LocalDate endDate) {
         String sql = "SELECT e.id, e.name, p.basic_pay, e.start FROM employee e " +
                 "JOIN payroll p ON e.id = p.employee_id " +
@@ -88,5 +90,39 @@ public class EmployeePayrollDBService {
             while (rs.next()) map.put(rs.getString("gender"), rs.getDouble("avg"));
         } catch (SQLException e) { e.printStackTrace(); }
         return map;
+    }
+    public void addEmployeeToPayroll(String name, double salary, LocalDate start, String gender) {
+        int employeeId = -1;
+        Connection connection = null;
+        try {
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/payroll_service?useSSL=false&allowPublicKeyRetrieval=true", "root", "Inf@rebel1");
+            connection.setAutoCommit(false); // [START TRANSACTION]
+
+            // 1. Insert into Employee table
+            String sqlEmployee = "INSERT INTO employee (company_id, name, gender, start) VALUES (1, ?, ?, ?)";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlEmployee, Statement.RETURN_GENERATED_KEYS)) {
+                preparedStatement.setString(1, name);
+                preparedStatement.setString(2, gender);
+                preparedStatement.setDate(3, Date.valueOf(start));
+                preparedStatement.executeUpdate();
+                ResultSet rs = preparedStatement.getGeneratedKeys();
+                if (rs.next()) employeeId = rs.getInt(1);
+            }
+
+            // 2. Insert into Payroll table using the new employeeId
+            String sqlPayroll = "INSERT INTO payroll (employee_id, basic_pay) VALUES (?, ?)";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlPayroll)) {
+                preparedStatement.setInt(1, employeeId);
+                preparedStatement.setDouble(2, salary);
+                preparedStatement.executeUpdate();
+            }
+
+            connection.commit(); // [SUCCESS - SAVE BOTH]
+        } catch (SQLException e) {
+            if (connection != null) {
+                try { connection.rollback(); } catch (SQLException ex) { ex.printStackTrace(); } // [FAIL - UNDO ALL]
+            }
+            e.printStackTrace();
+        }
     }
 }
