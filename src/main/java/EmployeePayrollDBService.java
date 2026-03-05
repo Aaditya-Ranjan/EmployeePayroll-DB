@@ -34,4 +34,22 @@ public class EmployeePayrollDBService {
         }
         return 0;
     }
+    public int updateEmployeeDataUsingPreparedStatement(String name, double salary) {
+        // SQL query using '?' placeholders for security
+        String sql = "UPDATE payroll p JOIN employee e ON e.id = p.employee_id " +
+                "SET p.basic_pay = ? WHERE e.name = ?;";
+
+        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/payroll_service?useSSL=false", "root", "Inf@rebel1");
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) { //
+
+            // Binding values to the '?' placeholders
+            preparedStatement.setDouble(1, salary); // First '?'
+            preparedStatement.setString(2, name);   // Second '?'
+
+            return preparedStatement.executeUpdate(); //
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }
