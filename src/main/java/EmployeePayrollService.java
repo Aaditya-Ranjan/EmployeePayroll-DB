@@ -1,5 +1,5 @@
 import java.util.List;
-
+import java.time.LocalDate;
 public class EmployeePayrollService {
     private List<EmployeePayrollData> employeePayrollList;
     private EmployeePayrollDBService employeePayrollDBService;
@@ -11,6 +11,9 @@ public class EmployeePayrollService {
     public List<EmployeePayrollData> readEmployeePayrollData() {
         this.employeePayrollList = employeePayrollDBService.readData();
         return this.employeePayrollList;
+    }
+    public List<EmployeePayrollData> readEmployeePayrollDataForDateRange(LocalDate startDate, LocalDate endDate) {
+        return employeePayrollDBService.getEmployeePayrollDataByDateRange(startDate, endDate);
     }
 
     public static void main(String[] args) {

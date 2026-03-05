@@ -1,6 +1,7 @@
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
 
 public class EmployeePayrollDBService {
     public List<EmployeePayrollData> readData() {
@@ -51,5 +52,31 @@ public class EmployeePayrollDBService {
             e.printStackTrace();
         }
         return 0;
+    }
+    public List<EmployeePayrollData> getEmployeePayrollDataByDateRange(LocalDate startDate, LocalDate endDate) {
+        String sql = "SELECT e.id, e.name, p.basic_pay, e.start FROM employee e " +
+                "JOIN payroll p ON e.id = p.employee_id " +
+                "WHERE e.start BETWEEN ? AND ?;"; //
+        List<EmployeePayrollData> employeePayrollList = new ArrayList<>();
+
+        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/payroll_service?useSSL=false", "root", "Inf@rebel1");
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setDate(1, java.sql.Date.valueOf(startDate)); //
+            preparedStatement.setDate(2, java.sql.Date.valueOf(endDate));   //
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                employeePayrollList.add(new EmployeePayrollData(
+                        resultSet.getInt("id"),
+                        resultSet.getString("name"),
+                        resultSet.getDouble("basic_pay"),
+                        resultSet.getDate("start").toLocalDate()
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return employeePayrollList;
     }
 }
