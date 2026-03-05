@@ -2,6 +2,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDate;
+import java.util.*;
 
 public class EmployeePayrollDBService {
     public List<EmployeePayrollData> readData() {
@@ -78,5 +79,14 @@ public class EmployeePayrollDBService {
             e.printStackTrace();
         }
         return employeePayrollList;
+    }
+    public Map<String, Double> getAverageSalaryByGender() {
+        String sql = "SELECT e.gender, AVG(p.basic_pay) as avg FROM employee e JOIN payroll p ON e.id = p.employee_id GROUP BY e.gender;";
+        Map<String, Double> map = new HashMap<>();
+        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/payroll_service?useSSL=false&allowPublicKeyRetrieval=true", "root", "Inf@rebel1")) {
+            ResultSet rs = con.createStatement().executeQuery(sql);
+            while (rs.next()) map.put(rs.getString("gender"), rs.getDouble("avg"));
+        } catch (SQLException e) { e.printStackTrace(); }
+        return map;
     }
 }

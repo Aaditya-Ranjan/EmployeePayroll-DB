@@ -1,5 +1,6 @@
 import java.util.List;
 import java.time.LocalDate;
+import java.util.*;
 public class EmployeePayrollService {
     private List<EmployeePayrollData> employeePayrollList;
     private EmployeePayrollDBService employeePayrollDBService;
@@ -42,5 +43,12 @@ public class EmployeePayrollService {
                 .findFirst()
                 .orElse(null);
         return dbData.salary == (this.getEmployeePayrollData(name).salary); //
+    }
+    public Map<String, Double> readAverageSalaryByGender() {
+        return employeePayrollDBService.getAverageSalaryByGender();
+    }
+    // This connects your Test to your DB Service logic
+    public Map<String, Double> getAverageSalaryByGender() {
+        return employeePayrollDBService.getAverageSalaryByGender();
     }
 }
