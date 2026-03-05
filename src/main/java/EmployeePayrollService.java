@@ -18,4 +18,26 @@ public class EmployeePayrollService {
         List<EmployeePayrollData> data = service.readEmployeePayrollData();
         data.forEach(System.out::println);
     }
+    public void updateEmployeeSalary(String name, double salary) {
+        int result = employeePayrollDBService.updateEmployeeData(name, salary); //
+        if (result == 0) return; //
+        EmployeePayrollData employeePayrollData = this.getEmployeePayrollData(name); //
+        if (employeePayrollData != null) employeePayrollData.salary = salary; //
+    }
+
+    private EmployeePayrollData getEmployeePayrollData(String name) {
+        return this.employeePayrollList.stream()
+                .filter(employee -> employee.name.equals(name))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public boolean checkEmployeePayrollInSyncWithDB(String name) {
+        List<EmployeePayrollData> employeePayrollDataList = employeePayrollDBService.readData(); //
+        EmployeePayrollData dbData = employeePayrollDataList.stream()
+                .filter(employee -> employee.name.equals(name))
+                .findFirst()
+                .orElse(null);
+        return dbData.salary == (this.getEmployeePayrollData(name).salary); //
+    }
 }
