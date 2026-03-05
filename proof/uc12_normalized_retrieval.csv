@@ -1,0 +1,3 @@
+gender,SUM(p.basic_pay),AVG(p.basic_pay),MIN(p.basic_pay),MAX(p.basic_pay),COUNT(e.name)
+M,3000000,1500000,1000000,2000000,2
+F,3000000,3000000,3000000,3000000,1
